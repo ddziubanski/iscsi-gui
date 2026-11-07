@@ -71,7 +71,7 @@ tests/               unit tests
 ## Tests
 
 ```bash
-python3 -m unittest tests.test_backend
+python3 -m unittest
 ```
 
 ## License
