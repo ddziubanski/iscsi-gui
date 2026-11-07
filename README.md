@@ -18,15 +18,11 @@ A GTK4 + Libadwaita desktop app for managing [open-iscsi](https://github.com/ope
 
 - Linux with `open-iscsi`
 - Python 3.10+
-- PyGObject with GTK 4 and Libadwaita 1 (`python3-gi`, `python3-gi-cairo`, `gir1.2-gtk-4.0`, `gir1.2-adw-1`)
+- PyGObject with GTK 4 and **Libadwaita 1.4 or newer** (`python3-gi`, `python3-gi-cairo`, `gir1.2-gtk-4.0`, `gir1.2-adw-1`)
 - `pkexec` (polkit)
 - Optional: `multipath-tools`
 
-On Debian or Ubuntu:
-
-```bash
-sudo apt install open-iscsi python3-gi python3-gi-cairo gir1.2-gtk-4.0 gir1.2-adw-1 pkexec
-```
+On Debian this means **Debian 13 (trixie) or later**. Debian 12 only ships Libadwaita 1.2, so the app won't start there. Ubuntu 24.04 and later also work.
 
 ## Running
 
@@ -39,13 +35,22 @@ From the source tree:
 
 ## Installing
 
-**Install script** (Debian/Ubuntu). Installs dependencies and copies the app to `/opt/iscsi-gui`, with a link at `/usr/local/bin/iscsi-gui`, plus the desktop entry, icon and polkit policy:
+**Installer** (Debian 13+ and derivatives):
 
 ```bash
-./install-ubuntu.sh
+git clone https://github.com/ddziubanski/iscsi-gui.git
+cd iscsi-gui
+./install-debian.sh
 ```
 
-**Debian package:**
+The installer checks that your apt sources have Libadwaita 1.4+ and builds the `iscsi-pulse` `.deb`. It then installs that with apt, which pulls in every dependency, and enables `iscsid`. The app goes to `/opt/iscsi-gui`, with `iscsi-gui` on your `PATH`, plus a desktop entry, icon and polkit policy. Run it as a normal user (it uses `sudo`) or as root.
+
+| Option | |
+|---|---|
+| `--with-multipath` | also install `multipath-tools`, for DM-Multipath setups |
+| `--uninstall` | remove the package (same as `sudo apt remove iscsi-pulse`) |
+
+**Just the package:**
 
 ```bash
 ./debian/build-deb.sh
