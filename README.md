@@ -1,49 +1,79 @@
 # iSCSI Pulse (`iscsi-gui`)
 
-**Modern GTK4 + Libadwaita GUI for managing `open-iscsi` terminations, target connections, CHAP authentication, laptop anti-freeze timeouts, and live LUN I/O telemetry on Ubuntu 26.04 and Linux.**
+A GTK4 + Libadwaita desktop app for managing [open-iscsi](https://github.com/open-iscsi/open-iscsi) on Linux. It wraps `iscsiadm` so you can discover targets, connect, set up CHAP, and log out safely without typing long commands.
 
----
+## Features
 
-## Why iSCSI Pulse?
+- **Discover and connect**: SendTargets discovery against a portal, then log in to a target.
+- **CHAP**: one-way and mutual CHAP, set from a single dialog.
+- **Laptop-friendly timeouts**: a preset that sets `replacement_timeout` to 15s and `noop_out_interval` to 5s, with manual startup, so a dropped network doesn't hang the machine for two minutes.
+- **Safe logout**: runs `sync`, unmounts the session's filesystems, flushes any multipath map (`multipath -f`), then logs out.
+- **Hung session recovery**: sets `recovery_tmo` to 0 in sysfs, lazy-unmounts (`umount -l`) and forces the logout.
+- **Terminate all**: disconnects every active session in one step.
+- **Live I/O**: read/write throughput and IOPS per LUN from `/proc/diskstats`, plus TCP latency to each portal.
+- **One password prompt per action**: privileged steps are batched into a single `pkexec` call, and every command run is shown in a log.
+- **Demo mode**: simulated sessions (including a hung one) for trying the app without any iSCSI setup.
 
-Managing `open-iscsi` (`iscsiadm`) on a Linux laptop or workstation has traditionally been painful for three reasons:
-1. **Stale / Hung Sessions Freeze Laptops**: When a laptop sleeps, switches Wi-Fi networks, or drops VPN while an iSCSI target is still logged in, `open-iscsi` defaults to a **120-second `replacement_timeout`**, freezing `df`, file managers (`Nautilus`), and processes waiting on I/O.
-2. **Unsafe Terminations Corrupt Mounts**: Running `iscsiadm -m node -u` without first syncing buffers, unmounting filesystems, and flushing multipath maps causes orphaned mountpoints and kernel buffer I/O errors.
-3. **Verbose CLI Configuration**: Configuring CHAP / Mutual CHAP, startup modes, and timeouts takes 6–10 separate `iscsiadm -m node -T <iqn> -p <portal> -o update -n ... -v ...` commands per target.
+## Requirements
 
-**iSCSI Pulse** solves all three in a native GNOME / Ubuntu 26.04 GTK4 + Libadwaita desktop app:
-- **Safe Graceful Termination**: One-click workflow that runs `sync`, unmounts attached partitions (`/dev/sdX`), flushes DM-Multipath maps (`multipath -f`), and logs out of the iSCSI session.
-- **Force Unfreeze / Hung Session Recovery**: Immediately sets kernel `/sys/class/iscsi_session/session<N>/recovery_tmo = 0`, lazy-unmounts dead mountpoints (`umount -l`), and force-terminates unreachable targets so your laptop unfreezes immediately.
-- **1-Click "Undock / Terminate All"**: Safely disconnects all active iSCSI targets before closing your laptop lid or leaving the LAN.
-- **15s Laptop Anti-Freeze Timeout Preset**: Applies `replacement_timeout = 15s` and `noop_out_interval = 5s` with `manual` startup so roaming laptops never hang at boot or on network transitions.
-- **SendTargets Discovery & CHAP / Mutual CHAP Editor**: Discover portals and configure unidirectional or bidirectional CHAP in one modal.
-- **Live LUN I/O & Health Telemetry**: Real-time 60-second Read/Write MB/s Cairo chart, per-LUN IOPS from `/proc/diskstats`, and TCP portal latency probes.
-- **Single-Prompt Polkit (`pkexec`) Elevation + Full Command Audit Log**: Batches privileged `iscsiadm` operations per action and logs every command executed.
+- Linux with `open-iscsi`
+- Python 3.10+
+- PyGObject with GTK 4 and Libadwaita 1 (`python3-gi`, `python3-gi-cairo`, `gir1.2-gtk-4.0`, `gir1.2-adw-1`)
+- `pkexec` (polkit)
+- Optional: `multipath-tools`
 
----
+On Debian or Ubuntu:
 
-## Quick Start on Ubuntu 26.04
-
-### Option 1: One-Command Install
 ```bash
-cd /home/dan/Projects/iscsi-gui
-chmod +x install-ubuntu.sh
+sudo apt install open-iscsi python3-gi python3-gi-cairo gir1.2-gtk-4.0 gir1.2-adw-1 pkexec
+```
+
+## Running
+
+From the source tree:
+
+```bash
+./bin/iscsi-gui          # use the live system; falls back to demo mode if open-iscsi isn't found
+./bin/iscsi-gui --demo   # force demo mode
+```
+
+## Installing
+
+**Install script** (Debian/Ubuntu). Installs dependencies and copies the app to `/opt/iscsi-gui`, with a link at `/usr/local/bin/iscsi-gui`, plus the desktop entry, icon and polkit policy:
+
+```bash
 ./install-ubuntu.sh
 ```
 
-### Option 2: Build a `.deb` Package for Ubuntu 26.04
+**Debian package:**
+
 ```bash
-cd /home/dan/Projects/iscsi-gui
-chmod +x debian/build-deb.sh
 ./debian/build-deb.sh
 sudo apt install ./dist/iscsi-pulse_1.0.0_all.deb
 ```
 
-### Option 3: Run Directly from Source (or in Interactive Demo Mode)
-```bash
-# Run against live system (or auto-fallback to Demo Mode if open-iscsi isn't installed yet)
-./bin/iscsi-gui
+## Project layout
 
-# Explicitly launch in Sandbox Demo Mode to test hung session recovery & live IOPS graphs
-./bin/iscsi-gui --demo
 ```
+bin/iscsi-gui        launcher
+iscsi_gui/
+  app.py             application entry point and --demo flag
+  window.py          main window
+  dialogs.py         discovery, connect and CHAP dialogs
+  backend.py         iscsiadm / sysfs / pkexec calls, demo data, command log
+  monitor.py         /proc/diskstats sampling and portal latency checks
+  models.py          data classes
+data/                desktop entry, icon, polkit policy
+debian/build-deb.sh  .deb builder
+tests/               unit tests
+```
+
+## Tests
+
+```bash
+python3 -m unittest tests.test_backend
+```
+
+## License
+
+MIT. See [LICENSE](LICENSE).
