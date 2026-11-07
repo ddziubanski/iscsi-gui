@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iscsi-pulse"
+version = "1.0.0"
+description = "Modern GTK4/Libadwaita GUI for open-iscsi terminations, connections, CHAP auth, and live I/O telemetry"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+keywords = ["iscsi", "open-iscsi", "iscsiadm", "gtk4", "libadwaita", "ubuntu", "linux", "storage", "san", "nas"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: X11 Applications :: GTK",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Systems Administration",
+]
+
+[project.scripts]
+iscsi-gui = "iscsi_gui.app:main"

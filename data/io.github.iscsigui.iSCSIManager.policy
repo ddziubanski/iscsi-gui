@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>iSCSI Pulse Open Source Project</vendor>
+  <vendor_url>https://github.com/iscsi-gui/iscsi-pulse</vendor_url>
+
+  <action id="io.github.iscsigui.iSCSIManager.iscsiadm">
+    <description>Manage open-iscsi sessions, target connections, and safe unmounts</description>
+    <message>Authentication is required to manage iSCSI connections and terminate sessions</message>
+    <icon_name>network-server-symbolic</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/iscsiadm</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+</policyconfig>

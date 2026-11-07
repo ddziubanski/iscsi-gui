@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=iSCSI Pulse
+GenericName=iSCSI Connection & Termination Manager
+Comment=Manage open-iscsi target discovery, CHAP auth, safe unmounts, hung session recovery, and live LUN IOPS
+Exec=iscsi-gui
+Icon=io.github.iscsigui.iSCSIManager
+Terminal=false
+Type=Application
+Categories=System;Settings;Filesystem;Network;
+Keywords=iSCSI;SAN;NAS;open-iscsi;iscsiadm;Storage;LUN;Multipath;
+StartupNotify=true

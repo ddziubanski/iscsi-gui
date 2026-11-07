@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Launcher script for iSCSI Pulse."""
+
+import os
+import sys
+
+# Ensure package root is importable when run directly from repo or /opt/iscsi-gui
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from iscsi_gui.app import main
+
+if __name__ == "__main__":
+    raise SystemExit(main())
